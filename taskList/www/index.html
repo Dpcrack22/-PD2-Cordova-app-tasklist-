@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>taskList</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+
+    <!-- Librerias -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+</head>
+<body>
+    
+    <h1>Task List</h1>
+    <button id="newTaskButton" onclick="dialog.dialog('open')">Nova tasca</button>
+
+    <div id="taskform" title="Nova tasca">
+        <input type="text" id="tasktext">
+    </div>
+
+    <ul>
+
+    </ul>
+
+<script>
+    dialog = $("#taskform").dialog({
+        autoOpen: true,
+        width: 350,
+        height: 400,
+        modal: true,
+        buttons: {
+            "Ok": function() {
+                const taskText = $("#tasktext").val();
+                if (taskText) {
+                    $("ul").append("<li>" + taskText + "</li>");
+                    $("#tasktext").val("");
+                    dialog.dialog("close");
+            }
+            },
+            "Cancel": function() {
+                dialog.dialog("close");
+            }
+        }
+    });
+
+    
+
+</script>
+
+</body>
+</html>
