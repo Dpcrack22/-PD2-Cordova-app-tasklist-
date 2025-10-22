@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,48 +9,178 @@
     <!-- CSS -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="/resources/demos/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        #newTaskButton {
+            display: block;
+            margin: 10px auto 20px auto;
+            padding: 10px 20px;
+            background-color: #5c6bc0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #newTaskButton:hover {
+            background-color: #3f51b5;
+        }
+
+        .list {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .taskItem {
+            background-color: white;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .taskText {
+            flex-grow: 1;
+        }
+
+        .taskItem button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .boto_editar {
+            background-color: #ffb74d;
+            color: white;
+        }
+
+        .boto_editar:hover {
+            background-color: #ffa726;
+        }
+
+        .boto_eliminar {
+            background-color: #e57373;
+            color: white;
+        }
+
+        .boto_eliminar:hover {
+            background-color: #f44336;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 8px 10px;
+            box-sizing: border-box;
+            margin-top: 5px;
+        }
+    </style>
 
     <!-- Librerias -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
 </head>
-<body>
-    
-    <h1>Task List</h1>
-    <button id="newTaskButton" onclick="dialog.dialog('open')">Nova tasca</button>
 
+<body>
+
+    <h1>Task List</h1>
+    <button id="newTaskButton">Nova tasca</button>
+
+    <!-- Dialog nueva tarea -->
     <div id="taskform" title="Nova tasca">
         <input type="text" id="tasktext">
     </div>
 
-    <ul>
+    <!-- Dialog editar tarea -->
+    <div id="editDialog" title="Editar tasca" style="display:none;">
+        <input type="text" id="editTaskText">
+    </div>
 
-    </ul>
+    <div class="list"></div>
 
-<script>
-    dialog = $("#taskform").dialog({
-        autoOpen: true,
-        width: 350,
-        height: 400,
-        modal: true,
-        buttons: {
-            "Ok": function() {
-                const taskText = $("#tasktext").val();
-                if (taskText) {
-                    $("ul").append("<li>" + taskText + "</li>");
-                    $("#tasktext").val("");
+    <script>
+        // --- Dialog para nueva tarea ---
+        
+        const dialog = $("#taskform").dialog({
+            autoOpen: true,
+            width: 350,
+            height: 200,
+            modal: true,
+            buttons: {
+                "Ok": function () {
+                    const taskText = $("#tasktext").val();
+                    if (taskText === "") return;
+
+            const taskDiv = $(`
+                <div class="taskItem">
+                    <span class="taskText">${taskText}</span>
+                    <button class="boto_editar">Editar</button>
+                    <button class="boto_eliminar">X</button>
+                </div>
+            `);
+
+            taskDiv.find(".boto_eliminar").click(deleteTask);
+            taskDiv.find(".boto_editar").click(editTask);
+
+            $(".list").append(taskDiv);
+            $("#tasktext").val("");
+            dialog.dialog("close");
+                },
+                "Cancel": function () {
                     dialog.dialog("close");
+                }
             }
-            },
-            "Cancel": function() {
-                dialog.dialog("close");
-            }
+        });
+
+        $("#newTaskButton").click(function () {
+            dialog.dialog("open");
+        });
+        
+        // --- Función eliminar tarea ---
+        function deleteTask(event) {
+            const caller = event.target || event.srcElement;
+            $(caller).parent().remove();
         }
-    });
 
-    
+        // --- Función editar tarea ---
+        function editTask(event) {
+            const taskDiv = $(event.target).parent();
+            const taskSpan = taskDiv.find(".taskText");
+            $("#editTaskText").val(taskSpan.text());
 
-</script>
+            $("#editDialog").dialog({
+                modal: true,
+                width: 350,
+                height: 200,
+                buttons: {
+                    "Guardar": function () {
+                        const newText = $("#editTaskText").val();
+                        if (newText !== "") taskSpan.text(newText);
+                        $(this).dialog("close");
+                    },
+                    "Cancelar": function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        }
+    </script>
 
 </body>
+
 </html>
