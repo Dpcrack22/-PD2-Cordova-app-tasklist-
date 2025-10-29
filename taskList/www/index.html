@@ -115,7 +115,6 @@
 
     <script>
         // --- Dialog para nueva tarea ---
-        
         const dialog = $("#taskform").dialog({
             autoOpen: true,
             width: 350,
@@ -126,20 +125,23 @@
                     const taskText = $("#tasktext").val();
                     if (taskText === "") return;
 
-            const taskDiv = $(`
-                <div class="taskItem">
-                    <span class="taskText">${taskText}</span>
-                    <button class="boto_editar">Editar</button>
-                    <button class="boto_eliminar">X</button>
-                </div>
-            `);
+                    const taskDiv = $(`
+                    <div class="taskItem">
+                        <span class="taskText">${taskText}</span>
+                        <button class="boto_editar">Editar</button>
+                        <button class="boto_eliminar">X</button>
+                    </div>
+                `);
 
-            taskDiv.find(".boto_eliminar").click(deleteTask);
-            taskDiv.find(".boto_editar").click(editTask);
+                    taskDiv.find(".boto_eliminar").click(deleteTask);
+                    taskDiv.find(".boto_editar").click(editTask);
 
-            $(".list").append(taskDiv);
-            $("#tasktext").val("");
-            dialog.dialog("close");
+                    $(".list").append(taskDiv);
+                    $("#tasktext").val("");
+                    dialog.dialog("close");
+
+                    // 🔹 Guardar en localStorage después de añadir una nueva tarea
+                    saveTasks();
                 },
                 "Cancel": function () {
                     dialog.dialog("close");
@@ -150,11 +152,14 @@
         $("#newTaskButton").click(function () {
             dialog.dialog("open");
         });
-        
+
         // --- Función eliminar tarea ---
         function deleteTask(event) {
             const caller = event.target || event.srcElement;
             $(caller).parent().remove();
+
+            // 🔹 Guardar cambios tras eliminar
+            saveTasks();
         }
 
         // --- Función editar tarea ---
@@ -172,6 +177,9 @@
                         const newText = $("#editTaskText").val();
                         if (newText !== "") taskSpan.text(newText);
                         $(this).dialog("close");
+
+                        // 🔹 Guardar cambios tras editar
+                        saveTasks();
                     },
                     "Cancelar": function () {
                         $(this).dialog("close");
@@ -179,7 +187,40 @@
                 }
             });
         }
+
+        // Guardar todas las tareas actuales
+        function saveTasks() {
+            const tasks = [];
+            $(".taskText").each(function () {
+                tasks.push($(this).text());
+            });
+            localStorage.setItem("taskList", JSON.stringify(tasks));
+        }
+
+        // Cargar tareas guardadas al iniciar la página
+        function loadTasks() {
+            const stored = localStorage.getItem("taskList");
+            if (stored) {
+                const tasks = JSON.parse(stored);
+                tasks.forEach(taskText => {
+                    const taskDiv = $(`
+                    <div class="taskItem">
+                        <span class="taskText">${taskText}</span>
+                        <button class="boto_editar">Editar</button>
+                        <button class="boto_eliminar">X</button>
+                    </div>
+                `);
+
+                    taskDiv.find(".boto_eliminar").click(deleteTask);
+                    taskDiv.find(".boto_editar").click(editTask);
+                    $(".list").append(taskDiv);
+                });
+            }
+        }
+
+        $(document).ready(loadTasks);
     </script>
+
 
 </body>
 
